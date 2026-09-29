@@ -1,8 +1,6 @@
 package nep.timeline.cirno.reflect
 
 import android.content.res.Resources
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import io.github.libxposed.api.XposedInterface
 import nep.timeline.cirno.GlobalVars
 import nep.timeline.cirno.log.XposedLog
@@ -62,7 +60,6 @@ object CakeReflection {
                 return isExact == other.isExact && Objects.equals(clazz, other.clazz) && parameters.contentEquals(other.parameters)
             }
 
-            @NonNull
             override fun toString(): String {
                 val str = clazz.name + getParametersString(*parameters)
                 return if (isExact) {
@@ -80,7 +77,6 @@ object CakeReflection {
                 return Objects.equals(clazz, other.clazz) && Objects.equals(name, other.name)
             }
 
-            @NonNull
             override fun toString(): String {
                 return clazz.name + "#" + name
             }
@@ -94,7 +90,6 @@ object CakeReflection {
                 return isExact == other.isExact && Objects.equals(clazz, other.clazz) && Objects.equals(name, other.name) && parameters.contentEquals(other.parameters)
             }
 
-            @NonNull
             override fun toString(): String {
                 val str = clazz.name + '#' + name + getParametersString(*parameters)
                 return if (isExact) {

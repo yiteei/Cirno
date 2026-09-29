@@ -2,19 +2,19 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: 25
@@ -22,31 +22,71 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install Android SDK platform 37
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          SM="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          if [ -x "$SM" ]; then
+            yes | "$SM" --licenses > /dev/null 2>&1 || true
+            "$SM" "platforms;android-37" "build-tools;37.0.0" || true
+          fi
+
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
+
+      - name: Check signing secrets
+        id: signing
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$SIGNING_KEY" ] && [ -n "$ALIAS" ] \
+            && [ -n "$KEY_STORE_PASSWORD" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Signing secrets missing (SIGNING_KEY, ALIAS, \
+          KEY_STORE_PASSWORD, KEY_PASSWORD); release APK stays unsigned"
+          fi
 
       - uses: r0adkll/sign-android-release@v1
         name: Sign app APK
         id: sign_app
+        if: steps.signing.outputs.available == 'true'
         with:
-          releaseDirectory: app/build/outputs/apk/release
+          releaseDirectory: ${{github.workspace}}/app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
-          BUILD_TOOLS_VERSION: "35.0.0"
-          
+          BUILD_TOOLS_VERSION: "37.0.0"
+
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Cirno-Debug
           path: ${{github.workspace}}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
 
       - name: Upload Release APK
-        uses: actions/upload-artifact@v4
+        if: steps.signing.outputs.available == 'true'
+        uses: actions/upload-artifact@v7
         with:
           name: Cirno-Release
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
+          if-no-files-found: warn
+
+      - name: Upload Unsigned Release APK
+        if: steps.signing.outputs.available != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: Cirno-Release-unsigned
+          path: |
+            ${{github.workspace}}/app/build/outputs/apk/release/*-unsigned.apk
           if-no-files-found: warn

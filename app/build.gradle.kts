@@ -9,7 +9,7 @@ plugins {
 
 configure<ApplicationExtension> {
     namespace = "nep.timeline.cirno"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 31

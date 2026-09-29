@@ -1,7 +1,5 @@
 package nep.timeline.cirno.framework
 
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import io.github.libxposed.api.XposedInterface
 import nep.timeline.cirno.reflect.CakeHooker
 import nep.timeline.cirno.reflect.CakeReflection
@@ -22,13 +20,13 @@ object XposedInstance {
     }
 
     @JvmStatic
-    fun log(priority: Int, tag: String?, @NonNull msg: String) {
+    fun log(priority: Int, tag: String?, msg: String) {
         val module = this.module ?: return
         module.log(priority, tag, msg)
     }
 
     @JvmStatic
-    fun log(priority: Int, tag: String?, @NonNull msg: String, tr: Throwable?) {
+    fun log(priority: Int, tag: String?, msg: String, tr: Throwable?) {
         val module = this.module ?: return
         module.log(priority, tag, msg, tr)
     }

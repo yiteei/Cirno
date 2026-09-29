@@ -1,6 +1,5 @@
 package nep.timeline.cirno.reflect
 
-import androidx.annotation.NonNull
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
 import java.lang.reflect.Executable
@@ -108,7 +107,7 @@ object CakeHooker {
         }
 
         @Throws(Throwable::class)
-        override fun intercept(@NonNull chain: XposedInterface.Chain): Any? {
+        override fun intercept(chain: XposedInterface.Chain): Any? {
             val callback = this.callback
             if (useCallback && callback is ReplacementCallback)
                 return callback.call(chain)

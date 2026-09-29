@@ -1,6 +1,5 @@
 package nep.timeline.cirno
 
-import androidx.annotation.NonNull
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface
 import nep.timeline.cirno.framework.XposedInstance
@@ -10,12 +9,12 @@ import nep.timeline.cirno.reflect.CakeHooker
 import java.io.File
 
 class HookInit : XposedModule() {
-    override fun onModuleLoaded(@NonNull param: XposedModuleInterface.ModuleLoadedParam) {
+    override fun onModuleLoaded(param: XposedModuleInterface.ModuleLoadedParam) {
         XposedInstance.setModule(this)
         CakeHooker.xposedModule = this
     }
 
-    override fun onSystemServerStarting(@NonNull param: XposedModuleInterface.SystemServerStartingParam) {
+    override fun onSystemServerStarting(param: XposedModuleInterface.SystemServerStartingParam) {
         val classLoader = param.classLoader
         CakeHooker.hostClassLoader = classLoader
 
