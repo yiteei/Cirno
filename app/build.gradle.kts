@@ -44,8 +44,6 @@ dependencies {
     implementation(libs.commons.io)
     compileOnly(libs.api)
     implementation(libs.service)
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
     implementation(libs.commons.lang3)
     implementation(libs.chrisbanes.haze)
     implementation(libs.androidx.core.ktx)
